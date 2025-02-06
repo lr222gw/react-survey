@@ -11,8 +11,8 @@ const answersSet = {
 function ItemsList({ list }) {
   return (
     <ul>
-      {list.map((item) => (
-        <li>{answersSet[item]}</li>
+      {list.map((item, index) => (
+        <li key={index}>{answersSet[item]}</li>
       ))}
     </ul>
   );
@@ -22,24 +22,37 @@ function ItemsList({ list }) {
 export default function AnswersItem({
   // Feel free to change this props names to what suits you best
   // Rememeber here we're destructuring answerItem, which is the prop name that we've passed
-  answerItem: { username, colour, timeSpent, review }
+  answerItem: { username, color, spend_time, review, },
+  editAnswercallback,
+  answerId
 }) {
+
+
   return (
     <li>
       <article className="answer">
-        <h3>{username || "Anon"} said:</h3>
-        <p>
-          <em>How do you rate your rubber duck colour?</em>
-          <span className="answer__line">{colour}</span>
-        </p>
-        <p>
-          <em>How do you like to spend time with your rubber duck?</em>
-          <ItemsList list={timeSpent} />
-        </p>
-        <p>
-          <em>What else have you got to say about your rubber duck?</em>
-          <span className="answer__line">{review}</span>
-        </p>
+        <div>
+          <button style={{float:"right"}} onClick={() => editAnswercallback(answerId)}>Edit</button>
+          <h3>{username || "Anon"} said:</h3>
+        </div>
+        <div>
+          <p>
+            <em>How do you rate your rubber duck colour?</em>
+            <span className="answer__line">{color}</span>
+          </p>
+        </div>
+        <div>
+          <p>
+            <em>How do you like to spend time with your rubber duck?</em>
+          </p>
+          <ItemsList list={spend_time} />
+        </div>
+        <div>
+          <p>
+            <em>What else have you got to say about your rubber duck?</em>
+            <span className="answer__line">{review}</span>
+          </p>
+        </div>
       </article>
     </li>
   );
