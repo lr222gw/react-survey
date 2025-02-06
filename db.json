@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "username": "duck",
+      "email": "me@duck.ok",
+      "color": "3",
+      "review": "very cools",
+      "consent": true,
+      "spend_time": [
+        "swimming",
+        "bathing"
+      ]
+    }
+  ]
+}

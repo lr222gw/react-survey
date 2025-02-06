@@ -1,27 +1,71 @@
 import { useState } from "react";
 import AnswersList from "./AnswersList";
 
+const PostToJsonDB = async (dat) => 
+{
+    // Find next valid ID: 
+    
+    const response = await fetch(
+      "http://localhost:3000/data/",
+      {
+        method: 'POST',
+        body : JSON.stringify(dat)
+      }
+    )
+}
 
+const PutToJsonDB = async (id,dat) => 
+  {
+      const response = await fetch(
+        `http://localhost:3000/data/${id}`,
+        {
+          method: 'PUT',
+          body : JSON.stringify(dat)
+        }
+      )
+      var a = await response.json();
+      console.log(a);
+  }
 
+const DeleteFromJsonDB = async (id) => 
+  {
+      const response = await fetch(
+        `http://localhost:3000/data/${id}`,
+        {
+          method: 'DELETE'
+        }
+      )
+      var a = await response.json();
+      console.log(a);
+  }
 
+const GetDataFromJsonDB = async () => 
+  {
+      const response = await fetch(
+        "http://localhost:3000/data/",
+        {
+          method: 'GET',
+
+        }
+      );
+      var d = await response.json()
+      console.log(d);
+      return d; 
+  }
+
+var databaseData =  await GetDataFromJsonDB();
 function Survey() {
   const [open, setOpen] = useState(false); //Ignore this state
-  const [editingId, setEditingId] = useState(null); //Ignore this state
-  const [answerList, setAnswerList] = useState([    
-        {
-          username: "duck",
-          email: "me@duck.ok",
-          color: "3",
-          review: "very cool",
-          consent: true,
-          spend_time : ["swimming", "bathing"]
-        }
-  ]); //Ignore this state
+  const [editingId, setEditingId] = useState(null);
+  const [answerList, setAnswerList] = useState(
+    databaseData
+); 
   
   // Making the definition immutable
   const FormDef = () =>
   {
     return {
+      id: "",
       username: "",
       email: "",
       color: "",
@@ -45,12 +89,20 @@ function Survey() {
     // Unpack and add original, followed by new answer from form...
     if(editingId == null)
     {
-      setAnswerList([...answerList, toAnswerList(formData)])
+      let dbdata =  answerList;
+      let nextID = Math.max(...dbdata.map(x => {return Number(x.id)}))+1;
+      let dat = toAnswerList(formData);
+      dat.id = `${nextID}`;
+      PostToJsonDB(dat)
+      setAnswerList([...answerList, dat])
+      
     }
     else 
     {
-      answerList[editingId] = toAnswerList(formData);
-      setAnswerList(answerList)
+      var toEditId = answerList.findIndex(x => x.id == editingId);
+      answerList[toEditId] = toAnswerList(formData);
+      setAnswerList(answerList);
+      PutToJsonDB(editingId, answerList[toEditId]);
       setEditingId(null);
     }
     setFormData(FormDef());
@@ -71,7 +123,8 @@ function Survey() {
 
   function editAnswer(id)
   {
-    let answerToEdit = structuredClone(answerList[id]);
+    var toEditId = answerList.findIndex(x => x.id == id);
+    let answerToEdit = structuredClone(answerList[toEditId]);
     
     // answerToEdit
     let newFormDat = FormDef(); // Initial values
@@ -86,6 +139,19 @@ function Survey() {
     setFormData(newFormDat)
     setEditingId(id);
     console.log(newFormDat);
+  }
+
+  function deleteAnswercallback(id)
+  {
+    
+    let local_answers = structuredClone(answerList);
+    
+    // answerToEdit
+    var toRemoveId = local_answers.findIndex(x => x.id == id);
+    local_answers.splice(toRemoveId,1);
+    setAnswerList(local_answers)
+
+    DeleteFromJsonDB(id);
   }
 
   function onFormChange(event){
@@ -105,13 +171,13 @@ function Survey() {
     }
   }
   
-
+  
   return (
     <main className="survey">
       <section className={`survey__list ${open ? "open" : ""}`}>
         <h2>Answers list</h2>
         {
-        <AnswersList answersList={ answerList} editAnswercallback={editAnswer}/>
+        <AnswersList answersList={ answerList} editAnswercallback={editAnswer} deleteAnswercallback={deleteAnswercallback} />
         }
       </section>
       <section className="survey__form">

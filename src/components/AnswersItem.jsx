@@ -24,6 +24,7 @@ export default function AnswersItem({
   // Rememeber here we're destructuring answerItem, which is the prop name that we've passed
   answerItem: { username, color, spend_time, review, },
   editAnswercallback,
+  deleteAnswercallback,
   answerId
 }) {
 
@@ -33,6 +34,7 @@ export default function AnswersItem({
       <article className="answer">
         <div>
           <button style={{float:"right"}} onClick={() => editAnswercallback(answerId)}>Edit</button>
+          <button style={{float:"right"}} onClick={() => deleteAnswercallback(answerId)}>Delete</button>
           <h3>{username || "Anon"} said:</h3>
         </div>
         <div>
